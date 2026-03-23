@@ -49,23 +49,22 @@ namespace mq9sensor {
 				`  float _r0     = _rs_air / 9.9;\n` +
 				`  Serial.print("MQ9 R0 = ");\n` +
 				`  Serial.print(_r0);\n` +
-				`  Serial.println(" kOhm");\n` +
+				`  Serial.println(" kOhm <-- use this value in the ppm block");\n` +
 				`}`
 			);
 		}
 	}
 
-	//% block="Διάβασε συγκέντρωση CO σε ppm στο pin [PIN] με R0=[R0] kΩ"
+	//% block="Διάβασε συγκέντρωση CO σε ppm στο pin [PIN] με R0=[R0] kΩ" blockType="reporter"
 	//% PIN.shadow="dropdown" PIN.options="ANALOG_PORTS" PIN.defl="ANALOG_PORTS.A0"
 	//% R0.shadow="number" R0.defl="10.0"
-	//% blockType="reporter"
 	export function getCOPPM(parameter: any, block: any) {
 		let pin = parameter.PIN.code;
 		let r0  = parameter.R0.code;
 		if (Generator.board === 'arduino') {
-			Generator.addInclude("math_h", `<math.h>`);
-			Generator.addInclude("mq9_resistance",
-				`float mq9_resistance(int pin) {\n` +
+			Generator.addInclude("math_h", "#include <math.h>");
+			Generator.addInclude("mq9_co_ppm",
+				`float mq9_co_ppm(int pin, float r0) {\n` +
 				`  float sum = 0;\n` +
 				`  for (int i = 0; i < 50; i++) {\n` +
 				`    float v = analogRead(pin) * (5.0 / 1023.0);\n` +
@@ -73,17 +72,11 @@ namespace mq9sensor {
 				`    sum += (5.0 - v) / v * 10.0;\n` +
 				`    delay(20);\n` +
 				`  }\n` +
-				`  return sum / 50.0;\n` +
-				`}`
-			);
-			Generator.addInclude("mq9_co_ppm",
-				`float mq9_co_ppm(int pin, float r0) {\n` +
-				`  float rs    = mq9_resistance(pin);\n` +
+				`  float rs    = sum / 50.0;\n` + 
 				`  float ratio = rs / r0;\n` +
 				`  if (ratio <= 0) return -1;\n` +
 				`  float ppm = 100.0 * pow(ratio, -1.53);\n` +
-				`  if (ppm < 0) ppm = 0;\n` +
-				`  return ppm;\n` +
+				`  return ppm < 0 ? 0 : ppm;\n` +
 				`}`
 			);
 			Generator.addCode(`mq9_co_ppm(${pin}, ${r0})`);
