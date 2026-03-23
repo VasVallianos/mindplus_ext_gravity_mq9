@@ -1,0 +1,8 @@
+{
+    
+    "mq9sensor.calibrateMQ9|block": "Βαθμονόμηση του MQ9 στο pin [PIN] (καθαρός αέρας — εκτύπωσε R0)",
+	"mq9sensor.getCOPPM|block": "Διάβασε συγκέντρωση CO σε ppm στο pin [PIN] με R0=[R0] kΩ",
+	"mq9sensor.getCOPPMSimple|block": "Διάβασε συγκέντρωση CO σε ppm στο pin [PIN] (πρόχειρη εκτίμηση - χωρίς βαθμονόμηση)"
+
+    
+}
